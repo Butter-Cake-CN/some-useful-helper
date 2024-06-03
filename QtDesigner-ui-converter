@@ -1,0 +1,54 @@
+"This program can help you to convert the .ui created by QtDesigner into .py instead of using the command line.
+User can chose to transform one file using the directory+filename.ui or transform all .ui files using the directory only.
+Guarantee you have already installed the pyqt5 using 'conda install pyqt' under Anaconda3 environment"
+"这个程序可以帮您无需使用命令行就将QtDesigner生成的.ui文件转化为.py。
+用户可以使用指定目录+文件名转化一个文件，也可以输入一个目录并转化其中的所有文件。
+请确保在Anaconda3的环境下已经使用'conda install pyqt'正确安装了pyqt5"
+import os
+import subprocess
+import sys
+
+
+def convert_ui_to_py(ui_file_path):
+    if not ui_file_path.endswith('.ui'):
+        raise ValueError("The specified file is not a .ui file")
+
+    py_file_path = ui_file_path.replace('.ui', '.py')
+
+    # 使用完整的Python解释器路径运行pyuic5
+    command = f'"{sys.executable}" -m PyQt5.uic.pyuic "{ui_file_path}" -o "{py_file_path}"'
+    try:
+        subprocess.run(command, check=True, shell=True)
+        print(f"Successfully converted {ui_file_path} to {py_file_path}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error occurred while converting {ui_file_path} to {py_file_path}: {e}")
+
+
+def convert_all_ui_files_in_directory(directory):
+    for file_name in os.listdir(directory):
+        if file_name.endswith('.ui'):
+            ui_file_path = os.path.join(directory, file_name)
+            convert_ui_to_py(ui_file_path)
+
+
+def main():
+    while True:
+        path = input(
+            "Please enter the path to the .ui file or the directory containing .ui files (or type 'exit' to quit): ")
+
+        if path.lower() == 'exit':
+            break
+
+        if os.path.isdir(path):
+            convert_all_ui_files_in_directory(path)
+        elif os.path.isfile(path):
+            if path.endswith('.ui'):
+                convert_ui_to_py(path)
+            else:
+                print("The specified file is not a .ui file")
+        else:
+            print("The specified path is not valid")
+
+
+if __name__ == "__main__":
+    main()
